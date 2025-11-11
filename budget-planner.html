@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            color: #8e8e93;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #3a3a3c;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 200, 5, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85em;
+            color: #8e8e93;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -1px;
+        }
+
+        .stat-card .subvalue {
+            font-size: 0.95em;
+            color: #8e8e93;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: #00c805 !important;
+        }
+
+        .negative {
+            color: #ff5000 !important;
+        }
+
+        .main-content {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            border-radius: 16px;
+            padding: 35px;
+            border: 1px solid #3a3a3c;
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #3a3a3c;
+        }
+
+        .section-header h2 {
+            color: #ffffff;
+            font-size: 1.6em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .btn {
+            background: #00c805;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            background: #00b004;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 200, 5, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: #ff5000;
+        }
+
+        .btn-danger:hover {
+            background: #e04800;
+            box-shadow: 0 4px 12px rgba(255, 80, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: #2c2c2e;
+            border: 1px solid #3a3a3c;
+        }
+
+        .btn-secondary:hover {
+            background: #3a3a3c;
+            box-shadow: 0 4px 12px rgba(58, 58, 60, 0.3);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            padding: 35px;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #3a3a3c;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 25px;
+            color: #ffffff;
+            font-size: 1.8em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #8e8e93;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #3a3a3c;
+            border-radius: 12px;
+            font-size: 1em;
+            background: #2c2c2e;
+            color: #ffffff;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #00c805;
+            box-shadow: 0 0 0 3px rgba(0, 200, 5, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .budget-item {
+            background: #2c2c2e;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a3c;
+            transition: all 0.2s;
+        }
+
+        .budget-item:hover {
+            border-color: #4a4a4c;
+            transform: translateX(2px);
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .budget-category {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .budget-amount {
+            font-size: 1.3em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .budget-progress {
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: #1c1c1e;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00c805, #00ff0a);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar.warning {
+            background: linear-gradient(90deg, #ffa500, #ffb520);
+        }
+
+        .progress-bar.danger {
+            background: linear-gradient(90deg, #ff5000, #ff6520);
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #8e8e93;
+        }
+
+        .budget-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .income-item, .expense-item {
+            background: #2c2c2e;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .income-item:hover, .expense-item:hover {
+            border-color: #4a4a4c;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+
+        .item-date {
+            font-size: 0.85em;
+            color: #8e8e93;
+        }
+
+        .item-amount {
+            font-size: 1.4em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-right: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8e8e93;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.4em;
+            margin-bottom: 12px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 1em;
+            color: #8e8e93;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3c;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #8e8e93;
+            font-weight: 600;
+            font-size: 0.95em;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab:hover {
+            color: #ffffff;
+        }
+
+        .tab.active {
+            color: #00c805;
+            border-bottom-color: #00c805;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 25px;
+            }
+
+            .budget-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .income-item, .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .item-amount {
+                margin-right: 0;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1c1c1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3c;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Budget Planner</h1>
+            <p>Simple budget management that actually works</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="stat-card">
+                <h3>Monthly Income</h3>
+                <div class="value positive" id="totalIncome">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <h3>Monthly Expenses</h3>
+                <div class="value" id="totalExpenses">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <h3>Remaining</h3>
+                <div class="value" id="remaining">$0.00</div>
+                <div class="subvalue" id="remainingPercent">0% of income</div>
+            </div>
+            <div class="stat-card">
+                <h3>Budget Status</h3>
+                <div class="value" id="budgetStatus">On Track</div>
+                <div class="subvalue" id="budgetStatusDetail">All categories within limits</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section-header">
+                <h2>Budget Categories</h2>
+                <button class="btn" onclick="openAddBudgetModal()">+ Add Category</button>
+            </div>
+            <div id="budgetList"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="section-header">
+                <h2>Income & Expenses</h2>
+            </div>
+            
+            <div class="tab-container">
+                <button class="tab active" onclick="switchTab('income')">Income</button>
+                <button class="tab" onclick="switchTab('expenses')">Expenses</button>
+            </div>
+
+            <div id="incomeTab" class="tab-content active">
+                <button class="btn" onclick="openAddIncomeModal()" style="margin-bottom: 20px;">+ Add Income</button>
+                <div id="incomeList"></div>
+            </div>
+
+            <div id="expensesTab" class="tab-content">
+                <button class="btn" onclick="openAddExpenseModal()" style="margin-bottom: 20px;">+ Add Expense</button>
+                <div id="expenseList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Budget Category Modal -->
+    <div class="modal" id="addBudgetModal">
+        <div class="modal-content">
+            <h2>Add Budget Category</h2>
+            <form id="addBudgetForm">
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" id="budgetCategory" placeholder="e.g., Rent, Food, Gas" required>
+                </div>
+                <div class="form-group">
+                    <label>Monthly Limit</label>
+                    <input type="number" id="budgetLimit" step="0.01" placeholder="e.g., 500.00" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddBudgetModal()">Cancel</button>
+                    <button type="submit" class="btn">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Income Modal -->
+    <div class="modal" id="addIncomeModal">
+        <div class="modal-content">
+            <h2>Add Income</h2>
+            <form id="addIncomeForm">
+                <div class="form-group">
+                    <label>Source</label>
+                    <input type="text" id="incomeSource" placeholder="e.g., Hy-Vee, Internship" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="incomeAmount" step="0.01" placeholder="e.g., 1500.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="incomeDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Recurring?</label>
+                    <select id="incomeRecurring">
+                        <option value="no">One-time</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="biweekly">Bi-weekly</option>
+                        <option value="weekly">Weekly</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddIncomeModal()">Cancel</button>
+                    <button type="submit" class="btn">Add Income</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal" id="addExpenseModal">
+        <div class="modal-content">
+            <h2>Add Expense</h2>
+            <form id="addExpenseForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expenseCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" placeholder="e.g., Groceries, Gas" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="expenseAmount" step="0.01" placeholder="e.g., 50.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="expenseDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddExpenseModal()">Cancel</button>
+                    <button type="submit" class="btn">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Budget Modal -->
+    <div class="modal" id="editBudgetModal">
+        <div class="modal-content">
+            <h2>Edit Budget Category</h2>
+            <form id="editBudgetForm">
+                <input type="hidden" id="editBudgetIndex">
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" id="editBudgetCategory" required>
+                </div>
+                <div class="form-group">
+                    <label>Monthly Limit</label>
+                    <input type="number" id="editBudgetLimit" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditBudgetModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let budgetCategories = [];
+        let income = [];
+        let expenses = [];
+
+        // Initialize date input to today
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => input.value = today);
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            const savedBudgets = localStorage.getItem('budgetCategories');
+            const savedIncome = localStorage.getItem('income');
+            const savedExpenses = localStorage.getItem('expenses');
+            
+            if (savedBudgets) budgetCategories = JSON.parse(savedBudgets);
+            if (savedIncome) income = JSON.parse(savedIncome);
+            if (savedExpenses) expenses = JSON.parse(savedExpenses);
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('budgetCategories', JSON.stringify(budgetCategories));
+            localStorage.setItem('income', JSON.stringify(income));
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            const totalIncome = income.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+            const totalExpenses = expenses.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+            const remaining = totalIncome - totalExpenses;
+            const remainingPercent = totalIncome > 0 ? (remaining / totalIncome) * 100 : 0;
+
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            
+            const remainingEl = document.getElementById('remaining');
+            remainingEl.textContent = formatCurrency(remaining);
+            remainingEl.className = remaining >= 0 ? 'value positive' : 'value negative';
+            
+            const remainingPercentEl = document.getElementById('remainingPercent');
+            remainingPercentEl.textContent = `${remainingPercent.toFixed(1)}% of income`;
+
+            // Calculate budget status
+            let overBudget = 0;
+            budgetCategories.forEach(budget => {
+                const spent = expenses
+                    .filter(e => e.category === budget.category)
+                    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+                if (spent > budget.limit) overBudget++;
+            });
+
+            const statusEl = document.getElementById('budgetStatus');
+            const statusDetailEl = document.getElementById('budgetStatusDetail');
+            
+            if (overBudget === 0) {
+                statusEl.textContent = 'On Track';
+                statusEl.className = 'value positive';
+                statusDetailEl.textContent = 'All categories within limits';
+            } else {
+                statusEl.textContent = 'Over Budget';
+                statusEl.className = 'value negative';
+                statusDetailEl.textContent = `${overBudget} ${overBudget === 1 ? 'category' : 'categories'} over limit`;
+            }
+        }
+
+        // Render budget categories
+        function renderBudgets() {
+            const container = document.getElementById('budgetList');
+            
+            if (budgetCategories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No budget categories yet</h3>
+                        <p>Add categories to start tracking your spending limits</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            budgetCategories.forEach((budget, index) => {
+                const spent = expenses
+                    .filter(e => e.category === budget.category)
+                    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+                
+                const percentage = (spent / budget.limit) * 100;
+                const remaining = budget.limit - spent;
+                
+                let progressClass = '';
+                if (percentage >= 100) progressClass = 'danger';
+                else if (percentage >= 80) progressClass = 'warning';
+
+                html += `
+                    <div class="budget-item">
+                        <div class="budget-header">
+                            <div class="budget-category">${budget.category}</div>
+                            <div class="budget-amount ${remaining < 0 ? 'negative' : ''}">${formatCurrency(spent)} / ${formatCurrency(budget.limit)}</div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar ${progressClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span>${percentage.toFixed(0)}% used</span>
+                                <span class="${remaining < 0 ? 'negative' : 'positive'}">${formatCurrency(remaining)} remaining</span>
+                            </div>
+                        </div>
+                        <div class="budget-actions">
+                            <button class="btn btn-small btn-secondary" onclick="editBudget(${index})">Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteBudget(${index})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            updateExpenseCategoryDropdown();
+        }
+
+        // Render income
+        function renderIncome() {
+            const container = document.getElementById('incomeList');
+            
+            if (income.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💵</div>
+                        <h3>No income added yet</h3>
+                        <p>Track your income sources to see the full picture</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            income.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((item, index) => {
+                html += `
+                    <div class="income-item">
+                        <div class="item-info">
+                            <div class="item-name">${item.source}</div>
+                            <div class="item-date">${formatDate(item.date)} ${item.recurring !== 'no' ? `• ${item.recurring}` : ''}</div>
+                        </div>
+                        <div class="item-amount positive">${formatCurrency(item.amount)}</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteIncome(${index})">Delete</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render expenses
+        function renderExpenses() {
+            const container = document.getElementById('expenseList');
+            
+            if (expenses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💸</div>
+                        <h3>No expenses tracked yet</h3>
+                        <p>Add expenses to see where your money goes</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((item, index) => {
+                html += `
+                    <div class="expense-item">
+                        <div class="item-info">
+                            <div class="item-name">${item.description}</div>
+                            <div class="item-date">${item.category} • ${formatDate(item.date)}</div>
+                        </div>
+                        <div class="item-amount">${formatCurrency(item.amount)}</div>
+                        <button class="btn btn-small btn-danger" onclick="deleteExpense(${index})">Delete</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Update expense category dropdown
+        function updateExpenseCategoryDropdown() {
+            const select = document.getElementById('expenseCategory');
+            select.innerHTML = '<option value="">Select Category</option>';
+            budgetCategories.forEach(budget => {
+                select.innerHTML += `<option value="${budget.category}">${budget.category}</option>`;
+            });
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'income') {
+                tabs[0].classList.add('active');
+                document.getElementById('incomeTab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('expensesTab').classList.add('active');
+            }
+        }
+
+        // Modal functions
+        function openAddBudgetModal() {
+            document.getElementById('addBudgetModal').classList.add('active');
+            document.getElementById('addBudgetForm').reset();
+        }
+
+        function closeAddBudgetModal() {
+            document.getElementById('addBudgetModal').classList.remove('active');
+        }
+
+        function openAddIncomeModal() {
+            document.getElementById('addIncomeModal').classList.add('active');
+            document.getElementById('addIncomeForm').reset();
+            setTodayDate();
+        }
+
+        function closeAddIncomeModal() {
+            document.getElementById('addIncomeModal').classList.remove('active');
+        }
+
+        function openAddExpenseModal() {
+            if (budgetCategories.length === 0) {
+                alert('Please add at least one budget category first!');
+                return;
+            }
+            document.getElementById('addExpenseModal').classList.add('active');
+            document.getElementById('addExpenseForm').reset();
+            setTodayDate();
+        }
+
+        function closeAddExpenseModal() {
+            document.getElementById('addExpenseModal').classList.remove('active');
+        }
+
+        function editBudget(index) {
+            const budget = budgetCategories[index];
+            document.getElementById('editBudgetIndex').value = index;
+            document.getElementById('editBudgetCategory').value = budget.category;
+            document.getElementById('editBudgetLimit').value = budget.limit;
+            document.getElementById('editBudgetModal').classList.add('active');
+        }
+
+        function closeEditBudgetModal() {
+            document.getElementById('editBudgetModal').classList.remove('active');
+        }
+
+        // Add budget category
+        document.getElementById('addBudgetForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const category = document.getElementById('budgetCategory').value.trim();
+            const limit = parseFloat(document.getElementById('budgetLimit').value);
+
+            budgetCategories.push({ category, limit });
+            saveData();
+            closeAddBudgetModal();
+            renderBudgets();
+            calculateTotals();
+        });
+
+        // Edit budget category
+        document.getElementById('editBudgetForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const index = parseInt(document.getElementById('editBudgetIndex').value);
+            const oldCategory = budgetCategories[index].category;
+            const newCategory = document.getElementById('editBudgetCategory').value.trim();
+            const limit = parseFloat(document.getElementById('editBudgetLimit').value);
+
+            // Update category name in expenses if it changed
+            if (oldCategory !== newCategory) {
+                expenses.forEach(expense => {
+                    if (expense.category === oldCategory) {
+                        expense.category = newCategory;
+                    }
+                });
+            }
+
+            budgetCategories[index] = { category: newCategory, limit };
+            saveData();
+            closeEditBudgetModal();
+            renderBudgets();
+            renderExpenses();
+            calculateTotals();
+        });
+
+        // Delete budget
+        function deleteBudget(index) {
+            if (confirm('Are you sure? Expenses in this category will remain but won\'t be tracked against a budget.')) {
+                budgetCategories.splice(index, 1);
+                saveData();
+                renderBudgets();
+                calculateTotals();
+            }
+        }
+
+        // Add income
+        document.getElementById('addIncomeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const source = document.getElementById('incomeSource').value.trim();
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+            const date = document.getElementById('incomeDate').value;
+            const recurring = document.getElementById('incomeRecurring').value;
+
+            income.push({ source, amount, date, recurring });
+            saveData();
+            closeAddIncomeModal();
+            renderIncome();
+            calculateTotals();
+        });
+
+        // Delete income
+        function deleteIncome(index) {
+            if (confirm('Delete this income entry?')) {
+                income.splice(index, 1);
+                saveData();
+                renderIncome();
+                calculateTotals();
+            }
+        }
+
+        // Add expense
+        document.getElementById('addExpenseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const category = document.getElementById('expenseCategory').value;
+            const description = document.getElementById('expenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const date = document.getElementById('expenseDate').value;
+
+            expenses.push({ category, description, amount, date });
+            saveData();
+            closeAddExpenseModal();
+            renderExpenses();
+            renderBudgets();
+            calculateTotals();
+        });
+
+        // Delete expense
+        function deleteExpense(index) {
+            if (confirm('Delete this expense?')) {
+                expenses.splice(index, 1);
+                saveData();
+                renderExpenses();
+                renderBudgets();
+                calculateTotals();
+            }
+        }
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize
+        loadData();
+        renderBudgets();
+        renderIncome();
+        renderExpenses();
+        calculateTotals();
+        setTodayDate();
+    </script>
+</body>
+</html>
